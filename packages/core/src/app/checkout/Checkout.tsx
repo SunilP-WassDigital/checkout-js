@@ -20,7 +20,7 @@ import { AnalyticsContextProps } from '@bigcommerce/checkout/analytics';
 import { Extension, ExtensionContextProps, withExtension } from '@bigcommerce/checkout/checkout-extension';
 import { ErrorLogger } from '@bigcommerce/checkout/error-handling-utils';
 import { TranslatedString, withLanguage, WithLanguageProps } from '@bigcommerce/checkout/locale';
-import { AddressFormSkeleton, ChecklistSkeleton } from '@bigcommerce/checkout/ui';
+import { AddressFormSkeleton, ChecklistSkeleton, TextInput } from '@bigcommerce/checkout/ui';
 
 import { withAnalytics } from '../analytics';
 import { StaticBillingAddress } from '../billing';
@@ -51,6 +51,7 @@ import CheckoutStepType from './CheckoutStepType';
 import CheckoutSupport from './CheckoutSupport';
 import mapToCheckoutProps from './mapToCheckoutProps';
 import navigateToOrderConfirmation from './navigateToOrderConfirmation';
+import { Button, ButtonVariant } from '../ui/button';  
 
 const Billing = lazy(() =>
     retry(
@@ -303,7 +304,8 @@ class Checkout extends Component<
         return (
             <div className={classNames('remove-checkout-step-numbers', { 'is-embedded': isEmbedded() })} data-test="checkout-page-container" id="checkout-page-container">
                 <div className="layout optimizedCheckout-contentPrimary">
-                    {this.renderContent()}
+                <div>Open Checkout Quick Start Example 1</div>
+                    {this.renderContent()}  
                 </div>
                 {errorModal}
             </div>
@@ -313,6 +315,7 @@ class Checkout extends Component<
     private renderContent(): ReactNode {
         const { isPending, loginUrl, promotions = [], steps, isShowingWalletButtonsOnTop, extensionState } = this.props;
 
+    
         const { activeStepType, defaultStepType, isCartEmpty, isRedirecting } = this.state;
 
         if (isCartEmpty) {
@@ -372,6 +375,9 @@ class Checkout extends Component<
 
             case CheckoutStepType.Payment:
                 return this.renderPaymentStep(step);
+
+            case CheckoutStepType.PetInformation:
+                    return this.renderItemStep(step);
 
             default:
                 return null;
@@ -522,6 +528,34 @@ class Checkout extends Component<
         );
     }
 
+    private renderItemStep(step: CheckoutStepStatus): ReactNode {
+        
+        return (
+            <CheckoutStep
+                {...step}
+                heading={'Pet and Vet Information'}
+                key={step.type}
+                onEdit={this.handleEditStep}
+                onExpanded={this.handleExpanded}
+            >
+                <LazyContainer loadingSkeleton={<ChecklistSkeleton />}>
+                    Pet and Vet Information
+                    <TextInput type='text'/>
+                    <div className="form-actions">
+                        <Button
+                            id="checkout-pet-continue"
+                            type="submit"
+                            onClick={this.handleSubmit}
+                            variant={ButtonVariant.Primary}
+                        >
+                            <TranslatedString id="common.continue_action" />
+                        </Button>
+                    </div>
+                </LazyContainer>
+            </CheckoutStep>
+        );
+    }
+
     private renderCartSummary(): ReactNode {
         const { isMultiShippingMode } = this.state;
 
@@ -549,6 +583,9 @@ class Checkout extends Component<
             </MobileView>
         );
     }
+    private handleSubmit: () => void = () => {
+        this.navigateToStep(CheckoutStepType.Payment);
+    };
 
     private navigateToStep(type: CheckoutStepType, options?: { isDefault?: boolean }): void {
         const { clearError, error, steps } = this.props;
@@ -586,16 +623,19 @@ class Checkout extends Component<
         const { steps, analyticsTracker } = this.props;
         const activeStepIndex = findIndex(steps, { isActive: true });
         const activeStep = activeStepIndex >= 0 && steps[activeStepIndex];
-
+        console.log('111');
         if (!activeStep) {
             return;
         }
-
+        console.log(activeStep)
+        
         const previousStep = steps[Math.max(activeStepIndex - 1, 0)];
 
         if (previousStep) {
             analyticsTracker.trackStepCompleted(previousStep.type);
         }
+        console.log(activeStep);
+        
 
         this.navigateToStep(activeStep.type, options);
     };

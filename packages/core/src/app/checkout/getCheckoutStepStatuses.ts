@@ -228,12 +228,18 @@ const getCheckoutStepStatuses = createSelector(
     getOrderSubmitStatus,
     (customerStep, shippingStep, billingStep, paymentStep, orderStatus) => {
         const isSubmittingOrder = orderStatus;
-
-        const steps = compact([customerStep, shippingStep, billingStep, paymentStep]);
+        let itemStep = {
+            type: CheckoutStepType.PetInformation,
+            isActive: false,
+            isComplete: false,
+            isEditable: true,
+            isRequired: true,
+        }
+        const steps = compact([customerStep, shippingStep, billingStep,itemStep,paymentStep]);
 
         const defaultActiveStep =
             steps.find((step) => !step.isComplete && step.isRequired) || steps[steps.length - 1];
-
+        console.log(steps);
         return steps.map((step, index) => {
             const isPrevStepComplete = steps
                 .slice(0, index)
