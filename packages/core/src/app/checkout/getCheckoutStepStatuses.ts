@@ -1,4 +1,4 @@
-import { CheckoutPayment, CheckoutSelectors } from '@bigcommerce/checkout-sdk';
+import { CheckoutPayment, CheckoutSelectors, Coupon } from '@bigcommerce/checkout-sdk';
 import { compact } from 'lodash';
 import { createSelector } from 'reselect';
 
@@ -215,6 +215,21 @@ const getPaymentStepStatus = createSelector(
     },
 );
 
+
+const getPetStepStatus = createSelector(
+  // You can add any required selector here, if you have dynamic data to compute
+  // In this case, there's no dynamic data, so we just return the object directly.
+  () => {},
+  () => {
+    return {
+      type: CheckoutStepType.PetInformation,
+      isActive: false,
+      isComplete: true,
+      isEditable: true,
+      isRequired: true,
+    };
+  }
+);
 const getOrderSubmitStatus = createSelector(
     ({ statuses }: CheckoutSelectors) => statuses.isSubmittingOrder(),
     (status) => status,
@@ -224,18 +239,12 @@ const getCheckoutStepStatuses = createSelector(
     getCustomerStepStatus,
     getShippingStepStatus,
     getBillingStepStatus,
+    getPetStepStatus,
     getPaymentStepStatus,
     getOrderSubmitStatus,
-    (customerStep, shippingStep, billingStep, paymentStep, orderStatus) => {
+    (customerStep, shippingStep, billingStep, petStep, paymentStep, orderStatus) => {
         const isSubmittingOrder = orderStatus;
-        let itemStep = {
-            type: CheckoutStepType.PetInformation,
-            isActive: false,
-            isComplete: false,
-            isEditable: true,
-            isRequired: true,
-        }
-        const steps = compact([customerStep, shippingStep, billingStep,itemStep,paymentStep]);
+        const steps = compact([customerStep, shippingStep, billingStep, petStep, paymentStep]);
 
         const defaultActiveStep =
             steps.find((step) => !step.isComplete && step.isRequired) || steps[steps.length - 1];

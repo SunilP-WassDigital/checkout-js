@@ -4,6 +4,7 @@ import {
     CartChangedError,
     CheckoutParams,
     CheckoutSelectors,
+    CheckoutService,
     Consignment,
     EmbeddedCheckoutMessenger,
     EmbeddedCheckoutMessengerOptions,
@@ -51,7 +52,8 @@ import CheckoutStepType from './CheckoutStepType';
 import CheckoutSupport from './CheckoutSupport';
 import mapToCheckoutProps from './mapToCheckoutProps';
 import navigateToOrderConfirmation from './navigateToOrderConfirmation';
-import { Button, ButtonVariant } from '../ui/button';  
+import { Button, ButtonVariant } from '../ui/button';
+import PetStep from '../petstep';
 
 const Billing = lazy(() =>
     retry(
@@ -529,7 +531,6 @@ class Checkout extends Component<
     }
 
     private renderItemStep(step: CheckoutStepStatus): ReactNode {
-        
         return (
             <CheckoutStep
                 {...step}
@@ -539,18 +540,7 @@ class Checkout extends Component<
                 onExpanded={this.handleExpanded}
             >
                 <LazyContainer loadingSkeleton={<ChecklistSkeleton />}>
-                    Pet and Vet Information
-                    <TextInput type='text'/>
-                    <div className="form-actions">
-                        <Button
-                            id="checkout-pet-continue"
-                            type="submit"
-                            onClick={this.handleSubmit}
-                            variant={ButtonVariant.Primary}
-                        >
-                            <TranslatedString id="common.continue_action" />
-                        </Button>
-                    </div>
+                    <PetStep handleSubmit={this.handleSubmit} />
                 </LazyContainer>
             </CheckoutStep>
         );
@@ -583,7 +573,8 @@ class Checkout extends Component<
             </MobileView>
         );
     }
-    private handleSubmit: () => void = () => {
+    private handleSubmit = (formData: { animalName: string; petSelection: string }) => {
+        localStorage.setItem('petInformation',JSON.stringify(formData));
         this.navigateToStep(CheckoutStepType.Payment);
     };
 
@@ -591,7 +582,7 @@ class Checkout extends Component<
         const { clearError, error, steps } = this.props;
         const { activeStepType } = this.state;
         const step = find(steps, { type });
-
+        console.log(step);
         if (!step) {
             return;
         }
@@ -623,7 +614,6 @@ class Checkout extends Component<
         const { steps, analyticsTracker } = this.props;
         const activeStepIndex = findIndex(steps, { isActive: true });
         const activeStep = activeStepIndex >= 0 && steps[activeStepIndex];
-        console.log('111');
         if (!activeStep) {
             return;
         }
