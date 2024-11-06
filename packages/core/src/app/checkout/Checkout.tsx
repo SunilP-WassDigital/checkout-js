@@ -571,8 +571,9 @@ class Checkout extends Component<
             </MobileView>
         );
     }
-    private handleSubmit = (formData: { animalName: string; petSelection: string }) => {
-        localStorage.setItem('petInformation',JSON.stringify(formData));
+    private handleSubmit = (formData: { animalName: string; petSelection: string }[]) => {
+        localStorage.setItem('step-complete-pet', 'true');
+        localStorage.setItem('petInformation', JSON.stringify(formData));
         this.navigateToStep(CheckoutStepType.Payment);
     };
 

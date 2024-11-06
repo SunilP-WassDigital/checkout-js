@@ -221,10 +221,11 @@ const getPetStepStatus = createSelector(
   // In this case, there's no dynamic data, so we just return the object directly.
   () => {},
   () => {
+    const stepComplete = localStorage.getItem('step-complete') === 'true';
     return {
       type: CheckoutStepType.PetInformation,
       isActive: false,
-      isComplete: true,
+      isComplete: stepComplete,
       isEditable: true,
       isRequired: true,
     };
